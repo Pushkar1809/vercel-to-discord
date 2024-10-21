@@ -2,18 +2,21 @@
 import crypto from 'crypto';
 import { VercelWebhookEvent } from '../../../types';
 
-const { WEBHOOK_INTEGRATION_SECRET, DISCORD_WEBHOOK_URL } = process.env;
+const { VERCEL_WEBHOOK_INTEGRATION_SECRET, DISCORD_WEBHOOK_URL } = process.env;
 
 export const POST = async (req: Request, res: Response) => {
 
-    if (typeof WEBHOOK_INTEGRATION_SECRET != 'string') {
-        throw new Error('No integration secret found');
-    }
+    if (typeof VERCEL_WEBHOOK_INTEGRATION_SECRET != "string") {
+			throw new Error("No integration secret found");
+		}
 
     const rawBody = await req.text();
     const rawBodyBuffer = Buffer.from(rawBody, 'utf-8');
 
-    const bodySignature = sha1(rawBodyBuffer, WEBHOOK_INTEGRATION_SECRET);
+    const bodySignature = sha1(
+			rawBodyBuffer,
+			VERCEL_WEBHOOK_INTEGRATION_SECRET,
+		);
 
     if (bodySignature !== req.headers.get('x-vercel-signature')) {
         return Response.json({
